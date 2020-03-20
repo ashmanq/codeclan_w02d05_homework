@@ -1,11 +1,12 @@
 
 class Guest
 
-  attr_reader :name, :wallet
+  attr_reader :name, :wallet, :favourite_song
 
-  def initialize(name, money)
+  def initialize(name, money, favourite_song)
     @name = name
     @wallet = money
+    @favourite_song = favourite_song
   end
 
   def get_money(amount)
@@ -13,9 +14,12 @@ class Guest
   end
 
   def give_money(amount)
-    if amount <= @wallet
+    if enough_money?(amount)
       @wallet -= amount
     end
   end
 
+  def enough_money?(amount)
+    return (amount <= @wallet) ? true : false
+  end
 end

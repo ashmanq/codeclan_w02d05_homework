@@ -30,9 +30,10 @@ class KaraokeBarTest < Minitest::Test
 
     @rooms = [@room1, @room2]
 
-    @karaoke_bar1 = KaraokeBar.new("Doki Doki Sing Song!", @rooms)
+    @karaoke_bar1 = KaraokeBar.new("Doki Doki Sing Song!", @rooms, 10)
 
-    #@random_song = Song.new("Random song name", "rubbish artist")
+    @guest1 = Guest.new("I M Legend", 100, @song1)
+    @guest2 = Guest.new("I C you", 500, @song2)
 
   end
 
@@ -48,8 +49,12 @@ class KaraokeBarTest < Minitest::Test
     assert_equal(2, @karaoke_bar1.room_count())
   end
 
-  def test_karaoke_bar_has_rooms()
-    assert_equal(2, @karaoke_bar1.room_count())
+  def test_karaoke_bar_entry_fee_is_specified()
+    assert_equal(10, @karaoke_bar1.entry_fee())
+  end
+
+  def test_change_karaoke_bar_entry_fee()
+    assert_equal(120, @karaoke_bar1.entry_fee = 120)
   end
 
   def test_find_room__room_doesnt_already_exist()
@@ -74,7 +79,33 @@ class KaraokeBarTest < Minitest::Test
     assert_equal(10, @karaoke_bar1.add_to_till(10))
   end
 
+  def test_check_guest_in__can_afford_entry_fee_enough_capacity()
+    @karaoke_bar1.check_guest_into_room(@room1, @guest1)
+    guests_in_room = @room1.guest_count()
+    assert_equal(1, guests_in_room)
+    assert_equal(90, @guest1.wallet())
+    assert_equal(10, @karaoke_bar1.till())
+  end
 
+  def test_check_guest_in__can_afford_and_NOT_enough_capacity()
+    @room1.capacity = 1
+    @karaoke_bar1.check_guest_into_room(@room1, @guest1)
+    @karaoke_bar1.check_guest_into_room(@room1, @guest2)
+    guests_in_room = @room1.guest_count()
+    assert_equal(1, guests_in_room)
+    assert_equal(90, @guest1.wallet())
+    assert_equal(500, @guest2.wallet())
+    assert_equal(10, @karaoke_bar1.till())
+  end
+
+  def test_check_guest_in__can_NOT_afford_entry_fee_enough_capacity()
+    @karaoke_bar1.entry_fee = 300
+    @karaoke_bar1.check_guest_into_room(@room1, @guest1)
+    guests_in_room = @room1.guest_count()
+    assert_equal(0, guests_in_room)
+    assert_equal(100, @guest1.wallet())
+    assert_equal(0, @karaoke_bar1.till())
+  end
 
 
 

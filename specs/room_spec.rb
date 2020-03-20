@@ -23,8 +23,7 @@ class RoomTest < Minitest::Test
 
     @room1 = Room.new("Earblaster", @songs, 10)
 
-    @random_song = Song.new("Random song name", "rubbish artist")
-    @guest1 = Guest.new("Bob Dylan")
+    @guest1 = Guest.new("Bob Dylan", 200, @new_song)
   end
 
   def test_room_has_name()
@@ -37,22 +36,22 @@ class RoomTest < Minitest::Test
   end
 
   def test_room_has_max_capacity()
-    assert_equal(10, @room1.room_capacity())
+    assert_equal(10, @room1.capacity())
   end
 
   def test_room_cant_exceed_max_capacity()
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
-    assert_equal(10, @room1.room_capacity())
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
+    assert_equal(10, @room1.capacity())
   end
 
   def test_room_has_songs()
@@ -77,7 +76,7 @@ class RoomTest < Minitest::Test
   end
 
   def test_find_song_by_name_from_song_list__song_not_in_list()
-    result = @room1.find_song(@random_song)
+    result = @room1.find_song(@new_song)
     assert_equal(false, result)
   end
 
@@ -88,8 +87,7 @@ class RoomTest < Minitest::Test
   end
 
   def test_can_remove_song_from_room__song_not_in_list()
-    # The song shouldn't be added if it already exists
-    @room1.remove_song(@random_song)
+    @room1.remove_song(@new_song)
     assert_equal(3, @room1.song_count())
   end
 
@@ -103,30 +101,30 @@ class RoomTest < Minitest::Test
   end
 
   def test_find_guest_by_name_in_room__guest_in_room()
-    @room1.check_in_guest(@guest1)
-    result = @room1.find_guest(@guest1)
+    @room1.add_guest(@guest1)
+    result = @room1.find_guest(@guest1.name)
     assert_equal(true, result)
   end
 
-  def test_check_in_guest_to_room__guest_not_already_in_room()
-    @room1.check_in_guest(@guest1)
+  def test_add_guest_to_room__guest_not_already_in_room()
+    @room1.add_guest(@guest1)
     assert_equal(1, @room1.guest_count())
   end
 
-  def test_check_in_guest_to_room__guest_already_in_room()
-    @room1.check_in_guest(@guest1)
-    @room1.check_in_guest(@guest1)
+  def test_add_guest_to_room__guest_already_in_room()
+    @room1.add_guest(@guest1)
+    @room1.add_guest(@guest1)
     assert_equal(1, @room1.guest_count())
   end
 
-  def test_check_out_guest_from_room__guest_in_room()
-    @room1.check_in_guest(@guest1)
-    @room1.check_out_guest(@guest1)
+  def test_remove_guest_from_room__guest_in_room()
+    @room1.add_guest(@guest1)
+    @room1.remove_guest(@guest1)
     assert_equal(0, @room1.guest_count())
   end
 
-  def test_check_out_guest_from_room__guest_not_in_room()
-    @room1.check_out_guest(@guest1)
+  def test_remove_guest_from_room__guest_not_in_room()
+    @room1.remove_guest(@guest1)
     assert_equal(0, @room1.guest_count())
   end
 

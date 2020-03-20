@@ -1,13 +1,13 @@
 class Room
   # We can read and write to the name if need be
-  attr_accessor :name, :room_capacity
-  attr_writer :room_capacity
+  attr_accessor :name, :capacity
+  attr_writer :capacity
 
   def initialize(name, songs, room_capacity)
     @name = name
     @songs = songs
     @guests = []
-    @room_capacity = room_capacity
+    @capacity = room_capacity
   end
 
   def song_count()
@@ -26,7 +26,7 @@ class Room
   end
 
   def find_guest(guest_to_search)
-    if @guests.find {|guest| guest == guest_to_search}
+    if @guests.find {|guest| guest.name() == guest_to_search}
       return true
     end
     return false
@@ -41,12 +41,30 @@ class Room
     @songs.push(new_song)
   end
 
-  def check_in_guest(new_guest)
-    # If room at capacity or guest already in room then guest isnt added
-    return if find_guest(new_guest)
-    return if guest_count() == 10
+  # def check_in_guest(new_guest, entry_fee)
+  #   # If guest is already checked in to room, room at capacity or
+  #   # if the guest doesnt have enough money then return false
+  #   return false if find_guest(new_guest)
+  #   return false if guest_count() == 10
+  #   return false if new_guest.wallet < entry_fee
+  #   # Otherwise add guest to room and take money from guest
+  #   @guests.push(new_guest)
+  #   new_guest.wallet -= entry_fee
+  #   return true
+  # end
+
+  def add_guest(new_guest)
+    # If guest is already checked in to room or room at capacity
+    # then return false
+    return false if find_guest(new_guest.name())
+    return false if !has_capacity?()
 
     @guests.push(new_guest)
+    return true
+  end
+
+  def has_capacity?()
+    return @guests.size() < @capacity
   end
 
 
@@ -55,7 +73,7 @@ class Room
     @songs.delete(song)
   end
 
-  def check_out_guest(guest)
+  def remove_guest(guest)
     @guests.delete(guest)
   end
 
