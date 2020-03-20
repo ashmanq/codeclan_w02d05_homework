@@ -5,6 +5,7 @@ require_relative('../karaoke_bar')
 require_relative('../room')
 require_relative('../guest')
 require_relative('../song')
+require_relative('../item')
 
 
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
@@ -23,10 +24,16 @@ class KaraokeBarTest < Minitest::Test
 
     @new_song = Song.new("No one will save you", "Aviators")
 
-    @room1 = Room.new("Earblaster Room", @songs_room1, 10)
-    @room2 = Room.new("Mozart Room", @songs_room2, 10)
+    @item1 = Item.new("coke", 3)
+    @item2 = Item.new("cake", 4)
+    @item3 = Item.new("nachos", 5)
 
-    @new_room = Room.new("JPop Room", @songs_room2, 15)
+    @items = [@item1, @item2, @item3]
+
+    @room1 = Room.new("Earblaster Room", @songs_room1, 10, @items)
+    @room2 = Room.new("Mozart Room", @songs_room2, 1, @items)
+
+    @new_room = Room.new("JPop Room", @songs_room2, 15, @items)
 
     @rooms = [@room1, @room2]
 
@@ -39,10 +46,6 @@ class KaraokeBarTest < Minitest::Test
 
   def test_karaoke_bar_has_name()
     assert_equal("Doki Doki Sing Song!", @karaoke_bar1.name())
-  end
-
-  def test_karaoke_bar_till_starts_at_zero()
-    assert_equal(0, @karaoke_bar1.till())
   end
 
   def test_karaoke_bar_has_rooms()
@@ -75,27 +78,19 @@ class KaraokeBarTest < Minitest::Test
     assert_equal(1, @karaoke_bar1.room_count())
   end
 
-  def test_karaoke_bar_add_to_till()
-    assert_equal(10, @karaoke_bar1.add_to_till(10))
-  end
-
   def test_check_guest_in__can_afford_entry_fee_enough_capacity()
     @karaoke_bar1.check_guest_into_room(@room1, @guest1)
     guests_in_room = @room1.guest_count()
     assert_equal(1, guests_in_room)
-    assert_equal(90, @guest1.wallet())
-    assert_equal(10, @karaoke_bar1.till())
+    assert_equal(10, @room1.tab())
   end
 
   def test_check_guest_in__can_afford_and_NOT_enough_capacity()
-    @room1.capacity = 1
-    @karaoke_bar1.check_guest_into_room(@room1, @guest1)
-    @karaoke_bar1.check_guest_into_room(@room1, @guest2)
-    guests_in_room = @room1.guest_count()
+    @karaoke_bar1.check_guest_into_room(@room2, @guest1)
+    @karaoke_bar1.check_guest_into_room(@room2, @guest2)
+    guests_in_room = @room2.guest_count()
     assert_equal(1, guests_in_room)
-    assert_equal(90, @guest1.wallet())
-    assert_equal(500, @guest2.wallet())
-    assert_equal(10, @karaoke_bar1.till())
+    assert_equal(10, @room2.tab())
   end
 
   def test_check_guest_in__can_NOT_afford_entry_fee_enough_capacity()
@@ -103,8 +98,7 @@ class KaraokeBarTest < Minitest::Test
     @karaoke_bar1.check_guest_into_room(@room1, @guest1)
     guests_in_room = @room1.guest_count()
     assert_equal(0, guests_in_room)
-    assert_equal(100, @guest1.wallet())
-    assert_equal(0, @karaoke_bar1.till())
+    assert_equal(0, @room1.tab())
   end
 
   def test_check_if_guests__fav_song_available()
@@ -117,6 +111,13 @@ class KaraokeBarTest < Minitest::Test
     assert_equal("Aww, all duds...", message)
   end
 
+  def test_guest_pays_tab()
+    @karaoke_bar1.check_guest_into_room(@room1, @guest1)
 
+    @room1.buy_item(@item1)
+    @karaoke_bar1.pay_tab(@room1, @guest1)
+    assert_equal(87, @guest1.wallet())
+    assert_equal(0, @room1.tab())
+  end
 
 end
