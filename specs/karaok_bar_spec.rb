@@ -107,6 +107,16 @@ class KaraokeBarTest < Minitest::Test
     assert_equal(0, @karaoke_bar1.till())
   end
 
+  def test_check_if_guests__fav_song_available()
+    message = @karaoke_bar1.check_guest_into_room(@room1, @guest1)
+    assert_equal("Yeeha! my fav song in da world!", message)
+  end
+
+  def test_check_if_guests__fav_song_NOT_available()
+    message = @karaoke_bar1.check_guest_into_room(@room2, @guest1)
+    assert_equal("Aww, all duds...", message)
+  end
+
 
 
 end
